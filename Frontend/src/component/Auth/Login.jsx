@@ -20,6 +20,7 @@ const Login = () => {
       localStorage.setItem("accessToken", accessToken); // Simpan token di localStorage
       const decodedToken = jwt_decode(accessToken); // Ambil peran (role) pengguna dari token
       const userRole = decodedToken.userRole;
+      alert("Login successful!");
 
       if (userRole === "admin") {
         navigate("/Dashboard/*");
@@ -28,7 +29,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred during login. Please try again later.");
+      alert("wrong password or email. Please try again later.");
     }
   };
 
