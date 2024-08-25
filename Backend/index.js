@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import router from "./routers/index.js";
 import dotenv from "dotenv";
+import Product from "./models/productModel.js";
 dotenv.config();
 
 const app = express();
@@ -11,6 +12,7 @@ const app = express();
 try {
   await db.authenticate();
   console.log("Database connected");
+  await Product.sync();
 } catch (error) {
   console.error("error");
 }

@@ -1,6 +1,6 @@
 import express from "express";
 import { getUsers, Register, Login } from "../controllers/User.js";
-import { verifyToken } from "../middleware/VerifyToken.js";
+// import { verifyToken } from "../middleware/VerifyToken.js";
 import {
   createSchedule,
   getSchedule,
@@ -42,7 +42,7 @@ router.put("/updateProduct", updateProduct);
 router.put("/adjustStock", adjustStock);
 router.put("/updateKategori", updateKategori);
 router.put("/updateMerk", updateMerk);
-router.get("/getUsers", verifyToken, getUsers);
+router.get("/getUsers", getUsers);
 router.post("/users", Register);
 router.post("/login", Login);
 router.get("/getAppointment", getAppointment);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 // import { Link } from "react-router-dom";
 
-const UserTable = () => {
+const Order_Table = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const UserTable = () => {
       <div className="card-header">
         <div className="me-3">
           <button className="btn btn-primary text-capitalize">
-            Create New User
+            Create New Order
           </button>
         </div>
       </div>
@@ -65,4 +65,4 @@ const UserTable = () => {
     </div>
   );
 };
-export default UserTable;
+export default Order_Table;

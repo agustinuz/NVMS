@@ -5,6 +5,9 @@ import "../../Css/Main.css";
 import { useEffect, useState } from "react";
 import UserTable from "./User_Table";
 import { jwtDecode as jwt_decode } from "jwt-decode";
+import AppointmetTable from "./Appointment_Table";
+import Order_Table from "./Order_Table";
+import Product_Table from "./Product_Table";
 // import HomePage from "./nav";
 
 const Main_Dashboard = () => {
@@ -102,18 +105,13 @@ const Main_Dashboard = () => {
                 >
                   <li className="sidebar-item">
                     <a href="#" className="sidebar-link">
-                      Brand Product
-                    </a>
-                  </li>
-                  <li className="sidebar-item">
-                    <a href="#" className="sidebar-link">
                       Kategori Product
                     </a>
                   </li>
                   <li className="sidebar-item">
-                    <a href="#" className="sidebar-link">
+                    <Link to="product" className="sidebar-link">
                       Product
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </li>
@@ -134,14 +132,14 @@ const Main_Dashboard = () => {
                   data-bs-parent="#sidebar"
                 >
                   <li className="sidebar-item">
-                    <a href="#" className="sidebar-link">
+                    <Link to="appointment" className="sidebar-link">
                       List Appoitnment
-                    </a>
+                    </Link>
                   </li>
                   <li className="sidebar-item">
-                    <a href="#" className="sidebar-link">
+                    <Link to="order" className="sidebar-link">
                       List Order
-                    </a>
+                    </Link>
                   </li>
                   <li className="sidebar-item">
                     <Link to="user" className="sidebar-link">
@@ -326,7 +324,9 @@ const Main_Dashboard = () => {
               </div>
               <Routes>
                 <Route path="/user" element={<UserTable />} />
-                {/* <Route path="/home_page" element={<HomePage />} /> */}
+                <Route path="/appointment" element={<AppointmetTable />} />
+                <Route path="/order" element={<Order_Table />} />
+                <Route path="/product" element={<Product_Table />} />
               </Routes>
             </div>
           </main>

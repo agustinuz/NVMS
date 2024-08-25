@@ -4,10 +4,8 @@ import jwt from "jsonwebtoken";
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await Users.findAll({
-      attributes: ["id", "name", "email", "role"], // Menyertakan peran dalam atribut yang diambil
-    });
-    res.json(users);
+    const response = await Users.findAll();
+    res.json(response);
   } catch (error) {
     console.log(error);
   }

@@ -9,6 +9,9 @@ const Kategori = db.define(
     nameKategori: {
       type: DataTypes.STRING,
     },
+    Description: {
+      type: DataTypes.TEXT,
+    },
   },
   {
     freezeTableName: true,
