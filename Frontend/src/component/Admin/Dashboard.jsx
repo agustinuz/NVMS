@@ -1,6 +1,12 @@
 // Dashboard .jsx
 import React from "react";
-import { Route, Routes, Link, useNavigate } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import "../../Css/Main.css";
 import { useEffect, useState } from "react";
 import UserTable from "./User_Table";
@@ -8,12 +14,15 @@ import { jwtDecode as jwt_decode } from "jwt-decode";
 import AppointmetTable from "./Appointment_Table";
 import Order_Table from "./Order_Table";
 import Product_Table from "./Product_Table";
+import Kategori_Table from "./Kategori_Table";
+import HomePage from "./nav";
 // import HomePage from "./nav";
 
 const Main_Dashboard = () => {
   const [isLight, setIsLight] = useState(() => localStorage.getItem("light"));
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const location = useLocation();
 
   useEffect(() => {
     if (isLight) {
@@ -104,9 +113,9 @@ const Main_Dashboard = () => {
                   data-bs-parent="#sidebar"
                 >
                   <li className="sidebar-item">
-                    <a href="#" className="sidebar-link">
+                    <Link to="kategori" className="sidebar-link">
                       Kategori Product
-                    </a>
+                    </Link>
                   </li>
                   <li className="sidebar-item">
                     <Link to="product" className="sidebar-link">
@@ -280,53 +289,15 @@ const Main_Dashboard = () => {
           <main className="content px-3 py-2">
             <div className="container-fluid">
               <div className="mb-3">
-                <h4>Admin Dashboard</h4>
+                <h4>Welcome {name}</h4>
               </div>
-              <div className="row">
-                <div className="col-12 col-md-6 d-flex">
-                  <div className="card flex-fill border-0 illustration">
-                    <div className="card-body p-0 d-flex flex-fill">
-                      <div className="row g-0 w-100">
-                        <div className="col-6">
-                          <div className="p-2 m-3">
-                            <h4>Welcome Back, {name}</h4>
-                          </div>
-                        </div>
-                        <div className="col-6 align-self-end text-end">
-                          <img
-                            src="image/customer-support.jpg"
-                            className="img-fluid illustration-img"
-                            alt=""
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <div className="col-12 col-md-6 d-flex">
-                  <div className="card flex-fill border-0">
-                    <div className="card-body py-4">
-                      <div className="d-flex align-items-start">
-                        <div className="flex-grow-1">
-                          <h4 className="mb-2">$ 78.00</h4>
-                          <p className="mb-2">Total Earnings</p>
-                          <div className="mb-0">
-                            <span className="badge text-success me-2">
-                              +9.0%
-                            </span>
-                            <span className="text-muted">Since Last Month</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
-              </div>
+              {location.pathname === "/Dashboard/*" && <HomePage />}
               <Routes>
                 <Route path="/user" element={<UserTable />} />
                 <Route path="/appointment" element={<AppointmetTable />} />
                 <Route path="/order" element={<Order_Table />} />
                 <Route path="/product" element={<Product_Table />} />
+                <Route path="/kategori" element={<Kategori_Table />} />
               </Routes>
             </div>
           </main>

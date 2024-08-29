@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Form } from "react-bootstrap";
-// import { Link } from "react-router-dom";
+import { Button, Modal, Form, Pagination } from "react-bootstrap";
 import { CDBCard, CDBCardBody, CDBDataTable, CDBContainer } from "cdbreact";
 import axios from "axios";
 
@@ -14,9 +13,8 @@ const Kategori_Table = ({ fetchData }) => {
   const [kategoriNameToDelete, setKategoriNameToDelete] = useState("");
   const [kategoriNameToUpdate, setKategoriNameToUpdate] = useState("");
   const [newName, setNewName] = useState("");
-  function testClickEvent(param) {
-    alert("Row Click Event");
-  }
+  const itemsPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchKategoris();
@@ -56,8 +54,7 @@ const Kategori_Table = ({ fetchData }) => {
         data: { nameKategori: kategoriNameToDelete },
       });
       setShowDeleteModal(false);
-      // Lakukan hal lain yang diperlukan setelah penghapusan
-      fetchKategoris(); // Ambil ulang kategoris setelah penghapusan
+      fetchKategoris();
     } catch (error) {
       console.error("Error:", error);
     }
@@ -70,12 +67,36 @@ const Kategori_Table = ({ fetchData }) => {
         newNameKategori: newName,
       });
       setShowUpdateModal(false);
-      // Lakukan hal lain yang diperlukan setelah pembaruan
-      fetchKategoris(); // Ambil ulang kategoris setelah pembaruan
+      fetchKategoris();
     } catch (error) {
       console.error("Error:", error);
     }
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(kategoris.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentKategoris = kategoris.slice(indexOfFirstItem, indexOfLastItem);
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(kategoris.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
 
   // Data for CDBDataTable
   const data = {
@@ -100,8 +121,8 @@ const Kategori_Table = ({ fetchData }) => {
         field: "action",
       },
     ],
-    rows: kategoris.map((kategori, index) => ({
-      index: index + 1,
+    rows: currentKategoris.map((kategori, index) => ({
+      index: index + 1 + (currentPage - 1) * itemsPerPage,
       nameKategori: kategori.nameKategori,
       Description: kategori.Description,
       action: (
@@ -115,28 +136,6 @@ const Kategori_Table = ({ fetchData }) => {
           >
             Delete
           </Button>
-          <Modal
-            show={showDeleteModal}
-            onHide={() => setShowDeleteModal(false)}
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Confirm Delete</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Are you sure you want to delete the kategori?
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant="secondary"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Delete
-              </Button>
-            </Modal.Footer>
-          </Modal>
           <Button
             className="mx-4"
             variant="primary"
@@ -147,51 +146,13 @@ const Kategori_Table = ({ fetchData }) => {
           >
             Update
           </Button>
-          <Modal
-            show={showUpdateModal}
-            onHide={() => setShowUpdateModal(false)}
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Update Kategori</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form.Group controlId="formMerkNameToUpdate">
-                <Form.Label>Kategori Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={kategoriNameToDelete}
-                  onChange={(e) => setKategoriNameToUpdate(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group controlId="formNewName">
-                <Form.Label>New Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant="secondary"
-                onClick={() => setShowUpdateModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleUpdate}>
-                Update
-              </Button>
-            </Modal.Footer>
-          </Modal>
         </>
       ),
-      clickEvent: () => testClickEvent(kategori.nameKategori),
     })),
   };
+
   return (
     <div>
-      {/* Content AddCategory */}
       <div id="layoutSidenav_content">
         <div className="container-fluid px-4">
           <h2 className="mb-3">
@@ -232,22 +193,31 @@ const Kategori_Table = ({ fetchData }) => {
               </Button>
             </Modal.Footer>
           </Modal>
-          <CDBContainer>
-            <CDBCard>
-              <CDBCardBody>
-                <CDBDataTable
-                  striped
-                  bordered
-                  hover
-                  entriesOptions={[5, 20, 25]}
-                  entries={5}
-                  pagesAmount={4}
-                  data={data}
-                  materialSearch={true}
-                />
-              </CDBCardBody>
-            </CDBCard>
-          </CDBContainer>
+
+          <div className="bg-info p-4 shadow rounded-lg">
+            <CDBContainer>
+              <CDBDataTable striped bordered hover paging={false} data={data} />
+            </CDBContainer>
+            <Pagination className="justify-content-center mt-4">
+              <Pagination.Prev
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              />
+              {pageNumbers.map((number) => (
+                <Pagination.Item
+                  key={number}
+                  active={number === currentPage}
+                  onClick={() => handlePageChange(number)}
+                >
+                  {number}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={handleNextPage}
+                disabled={currentPage === pageNumbers.length}
+              />
+            </Pagination>
+          </div>
         </div>
       </div>
     </div>

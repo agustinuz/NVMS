@@ -42,6 +42,9 @@ const Product = db.define(
     image: {
       type: DataTypes.STRING,
     },
+    url: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,

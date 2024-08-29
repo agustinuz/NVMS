@@ -4,7 +4,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import router from "./routers/index.js";
 import dotenv from "dotenv";
-import Product from "./models/productModel.js";
+import fileUpload from "express-fileupload";
+// import Product from "./models/productModel.js";
 dotenv.config();
 
 const app = express();
@@ -12,7 +13,7 @@ const app = express();
 try {
   await db.authenticate();
   console.log("Database connected");
-  await Product.sync();
+  // await Product.sync();
 } catch (error) {
   console.error("error");
 }
@@ -22,6 +23,7 @@ const corsOptions = {
   origin: "http://localhost:3000",
 };
 app.use(cors(corsOptions));
+app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(router);

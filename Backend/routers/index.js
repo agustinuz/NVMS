@@ -13,45 +13,37 @@ import {
 } from "../controllers/Appointment.js";
 import {
   getProduct,
-  createProduct,
+  getProductById,
+  saveProduct,
   deleteProduct,
   updateProduct,
   getKategori,
   createKategori,
   deleteKategori,
   updateKategori,
-  getMerk,
-  createMerk,
-  deleteMerk,
-  updateMerk,
-  adjustStock,
 } from "../controllers/Product.js";
 
 const router = express.Router();
 
-router.get("/getProduct", getProduct);
+router.get("/products", getProduct);
+router.get("/products/:id", getProductById);
 router.get("/getKategori", getKategori);
-router.get("/getMerk", getMerk);
-router.post("/createProduct", createProduct);
-router.post("/createKategori", createKategori);
-router.post("/createMerk", createMerk);
-router.delete("/deleteProduct", deleteProduct);
-router.delete("/deleteKategori", deleteKategori);
-router.delete("/deleteMerk", deleteMerk);
-router.put("/updateProduct", updateProduct);
-router.put("/adjustStock", adjustStock);
-router.put("/updateKategori", updateKategori);
-router.put("/updateMerk", updateMerk);
 router.get("/getUsers", getUsers);
-router.post("/users", Register);
-router.post("/login", Login);
 router.get("/getAppointment", getAppointment);
-router.post("/createAppointment", createAppointment);
-router.delete("/deleteAppointment", deleteAppointment);
-router.put("/updateAppointment", updateAppointment);
 router.get("/getSchedule", getSchedule);
+router.get("/getSchedule", getSchedule);
+router.post("/products", saveProduct);
 router.post("/createSchedule", createSchedule);
-router.put("/updateSchedule", updateSchedule);
+router.post("/createKategori", createKategori);
+router.post("/users", Register);
+router.post("/createAppointment", createAppointment);
+router.post("/login", Login);
+router.delete("/products/:id", deleteProduct);
+router.delete("/deleteKategori", deleteKategori);
+router.delete("/deleteAppointment", deleteAppointment);
 router.delete("/deleteSchedule", deleteSchedule);
-
+router.put("/updateKategori", updateKategori);
+router.put("/updateAppointment", updateAppointment);
+router.put("/updateSchedule", updateSchedule);
+router.patch("/products/:id", updateProduct);
 export default router;
