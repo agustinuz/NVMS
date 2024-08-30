@@ -25,7 +25,7 @@ import {
 
 const router = express.Router();
 
-router.get("/products", getProduct);
+router.get("/getproducts", getProduct);
 router.get("/products/:id", getProductById);
 router.get("/getKategori", getKategori);
 router.get("/getUsers", getUsers);

@@ -1,143 +1,256 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Table, Button, Form, Modal, Image } from "react-bootstrap";
+// import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
-  const [name, setName] = useState("");
-  const [kategori, setKategori] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [descripton, setDescription] = useState("");
-  const [file, setFile] = useState("");
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    kategori_id: "",
+    price: "",
+    stock: "",
+    description: "",
+    file: null,
+  });
   const [preview, setPreview] = useState("");
-  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch kategori  when modal opens
-    const fetchKategori = async () => {
-      try {
-        const kategoriResponse = await axios.get(
-          "http://localhost:5000/getKategori"
-        );
-        console.log(kategoriResponse);
-        setKategori(kategoriResponse.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    fetchKategori();
+    fetchCategories();
+    fetchProducts();
   }, []);
 
-  const loadImage = (e) => {
-    const image = e.target.files[0];
-    setFile(image);
-    setPreview(URL.createObjectURL(image));
-  };
-
-  const saveProduct = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("name", name);
-    formData.append("", kategori_id);
-    formData.append("price", price);
-    formData.append("stock", stock);
-    formData.append("description", descripton);
+  const fetchCategories = async () => {
     try {
-      await axios.post("http://localhost:5000/products", formData, {
-        headers: {
-          "Content-type": "multipart/form-data",
-        },
-      });
-      navigate("/");
+      const response = await axios.get("http://localhost:5000/getKategori");
+      setCategories(response.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching categories:", error);
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/getproducts");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "file") {
+      setFormData((prev) => ({
+        ...prev,
+        file: files[0],
+      }));
+      setPreview(URL.createObjectURL(files[0]));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSaveProduct = async () => {
+    const productData = new FormData();
+    for (const key in formData) {
+      productData.append(key, formData[key]);
+    }
+    try {
+      if (editProduct) {
+        await axios.patch(
+          `http://localhost:5000/products/${editProduct.id}`,
+          productData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+      } else {
+        await axios.post("http://localhost:5000/products", productData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      fetchProducts();
+      handleClose();
+    } catch (error) {
+      console.error("Error saving product:", error);
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditProduct(product);
+    setFormData({
+      name: product.name,
+      kategori_id: product.kategori_id,
+      price: product.price,
+      stock: product.stock,
+      description: product.description,
+      file: null,
+    });
+    setPreview(product.image_url); // Assuming the response has `image_url`
+    setShowModal(true);
+  };
+
+  const handleDeleteProduct = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/products/${id}`);
+      fetchProducts();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setEditProduct(null);
+    setFormData({
+      name: "",
+      kategori_id: "",
+      price: "",
+      stock: "",
+      description: "",
+      file: null,
+    });
+    setPreview("");
+  };
+
   return (
-    <div className="columns is-centered mt-5">
-      <div className="column is-half">
-        <form onSubmit={saveProduct}>
-          <div className="field">
-            <label className="label">Product Name</label>
-            <div className="control">
-              <input
+    <div>
+      <Button onClick={() => setShowModal(true)} variant="primary">
+        Add Product
+      </Button>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Kategori</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Description</th>
+            <th>Image</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td>{product.name}</td>
+              <td>
+                {categories.find((cat) => cat.id === product.kategori_id)?.name}
+              </td>
+              <td>{product.price}</td>
+              <td>{product.stock}</td>
+              <td>{product.description}</td>
+              <td>
+                <Image src={product.image_url} rounded width={100} />
+              </td>
+              <td>
+                <Button
+                  onClick={() => handleEditProduct(product)}
+                  variant="warning"
+                >
+                  Edit
+                </Button>{" "}
+                <Button
+                  onClick={() => handleDeleteProduct(product.id)}
+                  variant="danger"
+                >
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editProduct ? "Edit Product" : "Add Product"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formProductName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
                 type="text"
-                className="input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Product Name"
+                placeholder="Product name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
               />
-            </div>
-          </div>
-          <div className="field">
-            <Form.Group controlId="formKategoriId">
-              <Form.Label>Kategori</Form.Label>
+            </Form.Group>
+            <Form.Group controlId="formProductCategory">
+              <Form.Label>Category</Form.Label>
               <Form.Control
                 as="select"
                 name="kategori_id"
-                value={kategori_id}
-                onChange={e}
+                value={formData.kategori_id}
+                onChange={handleChange}
               >
-                <option value="">Select Kategori</option>
-                {kategori.map((kat) => (
-                  <option key={kat.id} value={kat.id}>
-                    {kat.nameKategori}
+                <option value="">Select Category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.nameKategori}
                   </option>
                 ))}
               </Form.Control>
             </Form.Group>
-          </div>
-          <div className="field">
-            <label className="label">Product Name</label>
-            <div className="control">
-              <input
-                type="text"
-                className="input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Product Name"
+            <Form.Group controlId="formProductPrice">
+              <Form.Label>Price</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Product price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
               />
-            </div>
-          </div>
-
-          <div className="field">
-            <label className="label">Image</label>
-            <div className="control">
-              <div className="file">
-                <label className="file-label">
-                  <input
-                    type="file"
-                    className="file-input"
-                    onChange={loadImage}
-                  />
-                  <span className="file-cta">
-                    <span className="file-label">Choose a file...</span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {preview ? (
-            <figure className="image is-128x128">
-              <img src={preview} alt="Preview Image" />
-            </figure>
-          ) : (
-            ""
-          )}
-
-          <div className="field">
-            <div className="control">
-              <button type="submit" className="button is-success">
-                Save
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+            </Form.Group>
+            <Form.Group controlId="formProductStock">
+              <Form.Label>Stock</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Product stock"
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formProductDescription">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Product description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formProductImage">
+              <Form.Label>Image</Form.Label>
+              <Form.Control type="file" name="file" onChange={handleChange} />
+              {preview && <Image src={preview} thumbnail />}
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveProduct}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
